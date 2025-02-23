@@ -3,12 +3,13 @@ import { debounce } from "lodash";
 
 import { useEffect, useState } from "react";
 import { View } from "react-native";
-import { Button, TextInput } from "react-native-paper";
+import { Button, Chip, Text, TextInput } from "react-native-paper";
 
 export default function Index() {
   const [esp_ip, set_esp_ip] = useState("");
   const [on_angle, set_on_angle] = useState(0);
   const [off_angle, set_off_angle] = useState(0);
+  const [message, set_message] = useState("");
   useEffect(() => {
     async function initializeSettings() {
       const savedSettings = await loadSettings();
@@ -23,10 +24,17 @@ export default function Index() {
     await saveSettings({ esp_ip, on_angle, off_angle });
   }
 
-  function sendRequest(angle: number) {
-    fetch(`http://${esp_ip}/control?angle=${angle}`)
-      .then(() => console.log("set angle to", angle))
-      .catch((e) => console.log("Error:", e));
+  async function sendRequest(angle: number) {
+    try {
+      const response = await fetch(`http://${esp_ip}/control?angle=${angle}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`[${response.status}] ${errorText}`);
+      }
+      set_message(`set angle to ${angle}`);
+    } catch (error) {
+      set_message(`${error}`);
+    }
   }
   const debouncedSend = debounce(sendRequest, 1000);
 
@@ -54,7 +62,7 @@ export default function Index() {
         label="关灯角度"
         value={String(off_angle)}
         onChangeText={(text) => set_off_angle(Number(text))}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 12 }}
       />
       <Button
         mode="outlined"
@@ -63,13 +71,33 @@ export default function Index() {
       >
         保存设置
       </Button>
-      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+      <View>
+        <Chip style={{ alignSelf: "flex-start", minWidth: 50 }}>状态</Chip>
+        <Text
+          variant="titleLarge"
+          style={{
+            textAlign: "center",
+            marginTop: 6,
+            paddingVertical: 5,
+            borderWidth: 1,
+          }}
+        >
+          {message}
+        </Text>
+      </View>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          marginTop: 32,
+        }}
+      >
         <Button
           icon="lightbulb-on-outline"
           mode="contained"
           buttonColor="orange"
           onPress={() => debouncedSend(on_angle)}
-          style={{ flex: 1, marginRight: 8, height: 80 }}
+          style={{ flex: 1, marginRight: 8, height: 150 }}
           contentStyle={{ height: "100%" }}
           labelStyle={{ fontSize: 18 }}
         >
@@ -80,7 +108,7 @@ export default function Index() {
           mode="contained"
           buttonColor="gray"
           onPress={() => debouncedSend(off_angle)}
-          style={{ flex: 1, marginLeft: 8, height: 80 }}
+          style={{ flex: 1, marginLeft: 8, height: 150 }}
           contentStyle={{ height: "100%" }}
           labelStyle={{ fontSize: 18 }}
         >

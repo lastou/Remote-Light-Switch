@@ -2,7 +2,7 @@
   "expo": {
     "name": "Remote Light Switch",
     "slug": "remote-light-switch",
-    "version": "0.1",
+    "version": "0.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "myapp",
@@ -29,6 +29,7 @@
         "expo-build-properties",
         {
           "android": {
+            "usesCleartextTraffic": true,
             "enableProguardInReleaseBuilds": true,
             "enableShrinkResourcesInReleaseBuilds": true,
             "useLegacyPackaging": true,

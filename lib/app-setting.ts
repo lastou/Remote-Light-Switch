@@ -1,10 +1,12 @@
 import { Settings } from "./type";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const DEFAULT_SETTINGS: Settings = {
+export const DEFAULT_SETTINGS: Settings = {
   esp_ip: "192.168.31.15",
-  on_angle: 0,
-  off_angle: 180,
+  on_angle: 180,
+  off_angle: 0,
+  idle_angle: 90,
+  duration: 1000,
 };
 
 export async function saveSettings(settings: Settings) {

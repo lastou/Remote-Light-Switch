@@ -1,32 +1,18 @@
-import { loadSettings, saveSettings } from "../lib/app-setting";
+import { Settings } from "../lib/type";
 import { debounce } from "lodash";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { View } from "react-native";
-import { Button, Chip, Text, TextInput } from "react-native-paper";
+import { Button, Chip, Text } from "react-native-paper";
 
-export default function Index() {
-  const [esp_ip, set_esp_ip] = useState("");
-  const [on_angle, set_on_angle] = useState(0);
-  const [off_angle, set_off_angle] = useState(0);
+export default function App({ settings }: { settings: Settings }) {
   const [message, set_message] = useState("");
-  useEffect(() => {
-    async function initializeSettings() {
-      const savedSettings = await loadSettings();
-      set_esp_ip(savedSettings.esp_ip);
-      set_on_angle(savedSettings.on_angle);
-      set_off_angle(savedSettings.off_angle);
-    }
-    initializeSettings();
-  }, []);
-
-  async function handleSaveSettings() {
-    await saveSettings({ esp_ip, on_angle, off_angle });
-  }
 
   async function sendRequest(angle: number) {
     try {
-      const response = await fetch(`http://${esp_ip}/control?angle=${angle}`);
+      const response = await fetch(
+        `http://${settings.esp_ip}/control?angleDest=${angle}&angleZero=${settings.idle_angle}&duration=${settings.duration}`,
+      );
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`[${response.status}] ${errorText}`);
@@ -46,31 +32,6 @@ export default function Index() {
         padding: 16,
       }}
     >
-      <TextInput
-        label="IP地址"
-        value={esp_ip}
-        onChangeText={(text) => set_esp_ip(text)}
-        style={{ marginBottom: 16 }}
-      />
-      <TextInput
-        label="开灯角度"
-        value={String(on_angle)}
-        onChangeText={(text) => set_on_angle(Number(text))}
-        style={{ marginBottom: 16 }}
-      />
-      <TextInput
-        label="关灯角度"
-        value={String(off_angle)}
-        onChangeText={(text) => set_off_angle(Number(text))}
-        style={{ marginBottom: 12 }}
-      />
-      <Button
-        mode="outlined"
-        onPress={handleSaveSettings}
-        style={{ marginBottom: 32, alignSelf: "center", minWidth: 100 }}
-      >
-        保存设置
-      </Button>
       <View>
         <Chip style={{ alignSelf: "flex-start", minWidth: 50 }}>状态</Chip>
         <Text
@@ -96,7 +57,7 @@ export default function Index() {
           icon="lightbulb-on-outline"
           mode="contained"
           buttonColor="orange"
-          onPress={() => debouncedSend(on_angle)}
+          onPress={() => debouncedSend(settings.on_angle)}
           style={{ flex: 1, marginRight: 8, height: 150 }}
           contentStyle={{ height: "100%" }}
           labelStyle={{ fontSize: 18 }}
@@ -107,7 +68,7 @@ export default function Index() {
           icon="lightbulb-off-outline"
           mode="contained"
           buttonColor="gray"
-          onPress={() => debouncedSend(off_angle)}
+          onPress={() => debouncedSend(settings.off_angle)}
           style={{ flex: 1, marginLeft: 8, height: 150 }}
           contentStyle={{ height: "100%" }}
           labelStyle={{ fontSize: 18 }}

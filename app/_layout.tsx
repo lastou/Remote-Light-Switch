@@ -3,10 +3,8 @@ import { Settings } from "../lib/type";
 import Config from "./config";
 import App from "./index";
 
-import { Stack } from "expo-router";
-
 import { useEffect, useState } from "react";
-import { Button, Modal, PaperProvider, Portal, Text } from "react-native-paper";
+import { Modal, PaperProvider, Portal } from "react-native-paper";
 import { Appbar } from "react-native-paper";
 
 export default function RootLayout() {
@@ -34,7 +32,6 @@ export default function RootLayout() {
         <Appbar.Content title="温湿度 & 灯开关" />
         <Appbar.Action icon="cog" onPress={showModal} />
       </Appbar.Header>
-      {/* <Stack screenOptions={{ title: "Remote Light Switch" }} /> */}
       <App settings={settings} />
     </PaperProvider>
   );
